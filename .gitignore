@@ -1,0 +1,132 @@
+# =========================
+# Python
+# =========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# =========================
+# Environment / Secrets
+# =========================
+
+.env
+.env.*
+!.env.example
+
+# =========================
+# IDE / Editors
+# =========================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS
+# =========================
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# =========================
+# Testing / Coverage
+# =========================
+
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+
+# =========================
+# Type checking / Linters
+# =========================
+
+.mypy_cache/
+.pyright/
+.ruff_cache/
+
+# =========================
+# Logs
+# =========================
+
+*.log
+logs/
+
+# =========================
+# RAG / AI Generated Data
+# =========================
+
+# FAISS indexes
+*.faiss
+*.index
+
+# Local vector database / storage
+vector_store/
+vector_db/
+
+# Hugging Face / ML model cache
+.cache/
+.huggingface/
+transformers_cache/
+
+# =========================
+# Documents / Uploaded Data
+# =========================
+
+# Local documents used for ingestion
+data/
+documents/
+uploads/
+
+# Generated chunks / processed documents
+chunks/
+processed_data/
+
+# =========================
+# Database
+# =========================
+
+*.db
+*.sqlite
+*.sqlite3
+
+# =========================
+# Alembic
+# =========================
+
+# Don't ignore migrations themselves.
+# Keep the migrations/versions directory tracked.
+
+# =========================
+# Jupyter Notebook
+# =========================
+
+.ipynb_checkpoints/
+
+# =========================
+# Temporary files
+# =========================
+
+*.tmp
+*.temp
+*.bak
+*.swp
