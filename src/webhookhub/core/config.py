@@ -4,11 +4,16 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+
     app_name: str = "WebhookHub"
     environment: str = "development"
     debug: bool = False
 
     database_url: str="postgresql+asyncpg://webhookhub:webhookhub@localhost:5432/webhookhub"
+
+    SECRET_KEY: str
+    ALGORITHM:str
+    EXP_TIME:int
 
     model_config = SettingsConfigDict(
         env_file=".env",
