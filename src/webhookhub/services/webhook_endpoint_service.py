@@ -4,8 +4,12 @@ from sqlalchemy import select
 from webhookhub.db.models.webhook_endpoint import  WebhookEndpointModel, WebhookSubscriptionModel
 from sqlalchemy.exc import IntegrityError
 import secrets
+from webhookhub.services.url_security_service import validate_webhook_url
+from fastapi import HTTPException
 
 async def create_webhook_endpoint( session: AsyncSession, user_id, name: str,url: str,) -> WebhookEndpointModel:
+
+
 
     endpoint = WebhookEndpointModel(
         user_id=user_id,
@@ -117,3 +121,28 @@ async def delete_subscription( session: AsyncSession, subscription_id: UUID, use
     await session.commit()
 
     return True
+
+
+async def rotate_endpoint_secret(session: AsyncSession,endpoint_id: UUID,user_id: UUID) -> str | None:
+
+    result = await session.execute(
+        select(WebhookEndpointModel)
+        .where(
+            WebhookEndpointModel.id == endpoint_id,
+            WebhookEndpointModel.user_id == user_id,
+        )
+        .with_for_update()
+    )
+
+    endpoint = result.scalar_one_or_none()
+
+    if endpoint is None:
+        return None
+
+    new_secret = secrets.token_urlsafe(32)
+
+    endpoint.secret = new_secret
+
+    await session.commit()
+
+    return new_secret

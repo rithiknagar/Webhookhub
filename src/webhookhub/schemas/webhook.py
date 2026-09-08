@@ -43,3 +43,6 @@ class WebhookSubscriptionResponseSchema(BaseModel):
     model_config = {
         "from_attributes": True,
     }
+
+class WebhookSecretResponseSchema(BaseModel):
+    secret: str

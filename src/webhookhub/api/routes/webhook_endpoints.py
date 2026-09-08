@@ -5,15 +5,15 @@ from webhookhub.api.dependencies.auth import get_current_user
 from webhookhub.db.models.user import UserModel
 from webhookhub.db.session import get_db_session
 from webhookhub.schemas.webhook import WebhookEndpointCreateSchema, WebhookEndpointResponseSchema,WebhookSubscriptionResponseSchema, WebhookSubscriptionCreateSchema, WebhookEndpointCreateResponseSchema
-from webhookhub.services.webhook_endpoint_service import  create_webhook_endpoint, get_webhook_endpoint_for_user, create_subscription, list_webhook_endpoints, delete_subscription, list_subscriptions
-
+from webhookhub.services.webhook_endpoint_service import  create_webhook_endpoint, get_webhook_endpoint_for_user, create_subscription, list_webhook_endpoints, delete_subscription, list_subscriptions, rotate_endpoint_secret
+from webhookhub.api.dependencies.rate_limit import event_rate_limit
 
 router = APIRouter( prefix="/v1/webhook-endpoints",tags=["Webhook Endpoints"])
 
 
 
 @router.get("", response_model=list[WebhookEndpointResponseSchema])
-async def list_endpoints( current_user: UserModel = Depends( get_current_user), session: AsyncSession = Depends(get_db_session)):
+async def list_endpoints( current_user: UserModel = Depends( event_rate_limit), session: AsyncSession = Depends(get_db_session)):
 
     return await list_webhook_endpoints(
         session=session,
@@ -67,6 +67,24 @@ async def create_endpoint_subscription( endpoint_id: UUID, payload: WebhookSubsc
         raise HTTPException( status_code=status.HTTP_409_CONFLICT, detail=str(exc) )
 
     return subscription
+
+@router.post("/{endpoint_id}/rotate-secret")
+async def rotate_secret(endpoint_id: UUID, current_user=Depends(get_current_user),session: AsyncSession = Depends(get_db_session)):
+    new_secret = await rotate_endpoint_secret(
+        session=session,
+        endpoint_id=endpoint_id,
+        user_id=current_user.id,
+    )
+
+    if new_secret is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Webhook endpoint not found",
+        )
+
+    return {
+        "secret": new_secret,
+    }
 
 @router.delete("/subscriptions/{subscription_id}",status_code=status.HTTP_204_NO_CONTENT)
 async def delete_endpoint_subscription( subscription_id: UUID,current_user: UserModel = Depends(
