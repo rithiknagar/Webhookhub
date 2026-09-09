@@ -10,8 +10,8 @@ from webhookhub.services.delivery_service import get_delivery
 from webhookhub.api.dependencies.auth import get_current_user
 from fastapi import Query
 
-from webhookhub.schemas.delivery_schema import  DeliveryListResponseSchema
-from webhookhub.services.delivery_service import list_deliveries
+from webhookhub.schemas.delivery_schema import  DeliveryListResponseSchema, DeliveryAttemptListResponseSchema
+from webhookhub.services.delivery_service import list_deliveries, replay_delivery, list_delivery_attempts
 from webhookhub.worker.tasks import deliver_webhook
 
 
@@ -72,4 +72,52 @@ async def get_deliveries(
         "page": page,
         "page_size": page_size,
     }
+
+
+@router.get("/{delivery_id}/attempts",response_model=DeliveryAttemptListResponseSchema)
+async def get_delivery_attempts(delivery_id: UUID,current_user=Depends(  get_current_user),db: AsyncSession = Depends(get_db_session)):
+
+    attempts, total = await list_delivery_attempts(
+        db=db,
+        delivery_id=delivery_id,
+        user_id=current_user.id,
+    )
+
+    if attempts is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Delivery not found",
+        )
+
+    return {
+        "items": attempts,
+        "total": total,
+    }
+
+
+
+@router.post("/{delivery_id}/replay",response_model=DeliveryResponseSchema)
+async def replay_delivery_endpoint(delivery_id: UUID,current_user=Depends(get_current_user),db: AsyncSession = Depends(get_db_session)):
+    try:
+        delivery = await replay_delivery(
+            db=db,
+            delivery_id=delivery_id,
+            user_id=current_user.id,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=str(exc),
+        )
+
+    if delivery is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Delivery not found",
+        )
+   
+    deliver_webhook.delay(str(delivery.id))
+
+    return delivery
+
 

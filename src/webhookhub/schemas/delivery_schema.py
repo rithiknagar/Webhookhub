@@ -30,3 +30,26 @@ class DeliveryListResponseSchema(BaseModel):
     total: int
     page: int
     page_size: int
+
+class DeliveryAttemptResponseSchema(BaseModel):
+    id: UUID
+    attempt_number: int
+
+    started_at: datetime
+    completed_at: datetime | None
+
+    response_status: int | None
+    error: str | None
+
+    duration_ms: int | None
+
+    created_at: datetime
+
+    model_config = {
+        "from_attributes": True,
+    }
+
+
+class DeliveryAttemptListResponseSchema(BaseModel):
+    items: list[DeliveryAttemptResponseSchema]
+    total: int

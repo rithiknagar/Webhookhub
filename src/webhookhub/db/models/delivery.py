@@ -25,6 +25,8 @@ class DeliveryModel(Base):
 
     event = relationship("EventModel", back_populates="deliveries")
     endpoint = relationship("WebhookEndpointModel", back_populates="deliveries")
+    
+    attempts = relationship("DeliveryAttemptModel",back_populates="delivery",cascade="all, delete-orphan")
 
     __table_args__ = (
         UniqueConstraint("event_id", "endpoint_id", name="uq_delivery_event_endpoint"),
