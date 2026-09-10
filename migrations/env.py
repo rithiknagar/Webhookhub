@@ -1,5 +1,5 @@
 from logging.config import fileConfig
-
+import os
 from alembic import context
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from webhookhub.core.config import get_settings
 from webhookhub.db.base import Base
-from webhookhub.db.models import APIKeyModel, UserModel, WebhookEndpointModel, WebhookSubscriptionModel, EventModel, DeliveryModel
+from webhookhub.db.models import APIKeyModel, UserModel, WebhookEndpointModel, WebhookSubscriptionModel, EventModel, DeliveryModel, DeliveryAttemptModel
 
 
 
@@ -15,9 +15,14 @@ config = context.config
 
 settings = get_settings()
 
+database_url = os.getenv(
+    "ALEMBIC_DATABASE_URL",
+    settings.database_url,
+)
+
 config.set_main_option(
     "sqlalchemy.url",
-    settings.database_url,
+    database_url,
 )
 
 if config.config_file_name is not None:

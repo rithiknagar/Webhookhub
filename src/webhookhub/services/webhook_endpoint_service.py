@@ -9,7 +9,13 @@ from fastapi import HTTPException
 
 async def create_webhook_endpoint( session: AsyncSession, user_id, name: str,url: str,) -> WebhookEndpointModel:
 
-
+    try:
+        validate_webhook_url(url)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=400,
+            detail=str(exc),
+        )
 
     endpoint = WebhookEndpointModel(
         user_id=user_id,
