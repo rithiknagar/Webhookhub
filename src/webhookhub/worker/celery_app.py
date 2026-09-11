@@ -1,11 +1,14 @@
 from celery import Celery
 from celery.schedules import schedule       # celery Beat
+from webhookhub.core.config import get_settings
+
+settings = get_settings()
 
 
 celery_app = Celery(
     "webhookhub",
-    broker="redis://127.0.0.1:6379/0",
-    backend="redis://127.0.0.1:6379/1",
+    broker=f"{settings.redis_url}/0",
+    backend=f"{settings.redis_url}/1",
 )
 
 celery_app.conf.update(

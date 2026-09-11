@@ -48,7 +48,7 @@ def verify_api_key( provided_key: str, stored_hash: str,) -> bool:
     return secrets.compare_digest( provided_hash, stored_hash )
 
 def create_access_token(payload:Dict):
-    expiry_time=datetime.now(timezone.utc)+timedelta(minutes=settings.EXP_TIME)
+    expiry_time=datetime.now(timezone.utc)+timedelta(minutes=settings.exp_time)
     payload["exp"]=expiry_time
-    token= jwt.encode(payload,settings.SECRET_KEY,settings.ALGORITHM)
+    token= jwt.encode(payload,settings.secret_key,settings.algorithm)
     return token

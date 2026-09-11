@@ -80,7 +80,7 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends( bear
         
         token=token.split(" ")[-1]
 
-        is_verified=jwt.decode(token,setting.SECRET_KEY,setting.ALGORITHM)
+        is_verified=jwt.decode(token,setting.secret_key,setting.algorithm)
 
         user_id = is_verified.get("id")
 
